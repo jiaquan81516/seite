@@ -163,7 +163,9 @@ describe('Income view and limit strip', () => {
       created_at: '2026-11-01T00:00:00Z',
     });
     render(<IncomeView filters={filters} spent={25000} />);
-    expect(await screen.findByLabelText('Balance')).toHaveTextContent('S$750.00');
+    await waitFor(() =>
+      expect(screen.getByLabelText('Balance')).toHaveTextContent('S$750.00'),
+    );
     expect(screen.getByText('Money in').nextSibling).toHaveTextContent('S$1,000.00');
     expect(screen.getByText('Money out').nextSibling).toHaveTextContent('S$250.00');
     expect(screen.getByRole('button', { name: /Edit Allowance/ })).toBeInTheDocument();

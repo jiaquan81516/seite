@@ -4,6 +4,7 @@ import { chatRequestSchema } from '../shared/ai-schema.js';
 import { aiClient } from './ai/client.js';
 import { publicAiStatus } from './ai/config.js';
 import { getExchangeRate } from './fx.js';
+import { createMemoryLimiter } from './limiter.js';
 
 function json(response, status, body) {
   response.writeHead(status, {
@@ -16,6 +17,9 @@ function json(response, status, body) {
 async function readJson(request) {
   if (!request.headers['content-type']?.startsWith('application/json'))
     throw Object.assign(new Error('Send JSON to this endpoint.'), { status: 415 });
+  // Some hosts (Vercel) parse the body before it reaches us.
+  if (request.body && typeof request.body === 'object' && !Buffer.isBuffer(request.body))
+    return request.body;
   const chunks = [];
   let bytes = 0;
   await new Promise((resolve, reject) => {
@@ -59,6 +63,9 @@ const MIME = {
 export const DAILY_MESSAGE_LIMIT = 100;
 const DAY = 24 * 60 * 60 * 1000;
 
+// hosted: running on a public host (Vercel) instead of on your own computer. It
+// accepts requests for its own address only, and shares one daily allowance across
+// everyone, so a public link can never spend more than the limit.
 export function createHandler(
   config,
   {
@@ -66,12 +73,12 @@ export function createHandler(
     fx = getExchangeRate,
     dailyLimit = Number(process.env.CHAT_DAILY_LIMIT) || DAILY_MESSAGE_LIMIT,
     now = Date.now,
+    hosted = false,
+    limiter = createMemoryLimiter(now),
   } = {},
 ) {
   let active = 0;
   let requests = [];
-  // AI messages sent in the last 24 hours, per client address.
-  const daily = new Map();
   return async function handle(request, response) {
     const abort = new AbortController();
     response.on('close', () => {
@@ -81,12 +88,26 @@ export function createHandler(
       const url = new URL(request.url, 'http://localhost');
       const origin = request.headers.origin;
       const host = request.headers.host?.split(':')[0];
-      if (!['localhost', '127.0.0.1'].includes(host))
-        return json(response, 403, {
-          error: 'This local server only accepts localhost requests.',
-        });
-      if (origin && !/^http:\/\/(localhost|127\.0\.0\.1):(5173|4173|8787)$/.test(origin))
-        return json(response, 403, { error: 'This origin is not allowed.' });
+      if (hosted) {
+        let originHost = '';
+        try {
+          originHost = origin ? new URL(origin).host : '';
+        } catch {
+          originHost = 'invalid';
+        }
+        if (origin && originHost !== request.headers.host)
+          return json(response, 403, { error: 'This origin is not allowed.' });
+      } else {
+        if (!['localhost', '127.0.0.1'].includes(host))
+          return json(response, 403, {
+            error: 'This local server only accepts localhost requests.',
+          });
+        if (
+          origin &&
+          !/^http:\/\/(localhost|127\.0\.0\.1):(5173|4173|8787)$/.test(origin)
+        )
+          return json(response, 403, { error: 'This origin is not allowed.' });
+      }
       if (url.pathname === '/api/ai/status' && request.method === 'GET')
         return json(response, 200, publicAiStatus(config));
       if (url.pathname === '/api/fx' && request.method === 'GET') {
@@ -107,18 +128,17 @@ export function createHandler(
           return json(response, 429, {
             error: 'A little pause—please wait a minute before sending more requests.',
           });
-        const client = request.socket.remoteAddress || 'local';
-        const sent = (daily.get(client) ?? []).filter((time) => now() - time < DAY);
-        if (sent.length >= dailyLimit) {
-          daily.set(client, sent);
-          const hours = Math.max(1, Math.ceil((sent[0] + DAY - now()) / 3600000));
+        const client = hosted
+          ? 'seite:daily:site'
+          : request.socket.remoteAddress || 'local';
+        const { allowed, retryAfterMs } = await limiter.hit(client, dailyLimit, DAY);
+        if (!allowed) {
+          const hours = Math.max(1, Math.ceil(retryAfterMs / 3600000));
           return json(response, 429, {
             code: 'daily_limit',
-            error: `You've used all ${dailyLimit} AI messages for today. They free up again in about ${hours} ${hours === 1 ? 'hour' : 'hours'}. Your tracker still works as usual.`,
+            error: `${hosted ? 'This demo has' : "You've"} used all ${dailyLimit} AI messages for today. They free up again in about ${hours} ${hours === 1 ? 'hour' : 'hours'}. Your tracker still works as usual.`,
           });
         }
-        sent.push(now());
-        daily.set(client, sent);
         requests.push(Date.now());
         active += 1;
         try {
@@ -133,6 +153,7 @@ export function createHandler(
       }
       if (url.pathname.startsWith('/api/'))
         return json(response, 404, { error: 'API endpoint not found.' });
+      if (hosted) return json(response, 404, { error: 'Not found.' });
       if (request.method !== 'GET')
         return json(response, 405, { error: 'Method not allowed.' });
       const directory = resolve('dist');

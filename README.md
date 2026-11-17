@@ -287,3 +287,7 @@ Each action shows its target and an explicit Remove entry / Apply changes button
 - **Not included yet:** income, bills and goals are not part of the JSON entries backup, and the chat does not read them yet.
 
 - **AI message limit:** the server allows 100 AI chat messages per client every 24 hours (change it with `CHAT_DAILY_LIMIT`), on top of the existing 10 per minute and 2 at a time. Past the limit, chat shows how long until messages free up, and the rest of the app keeps working.
+
+## Deploying the chat on Vercel
+
+The `api/` folder holds three Vercel functions (`/api/chat`, `/api/ai/status`, `/api/fx`) that reuse the same code as the local server (`server/vercel.js`). In Vercel → Settings → Environment Variables add `GEMINI_API_KEY` and `AI_FREE_TIER_CONFIRMED=true` (names without `VITE_`), then redeploy. On Vercel the whole site shares one allowance of 100 AI messages per 24 hours (`CHAT_DAILY_LIMIT` changes it), and only requests from the site's own address are accepted. Without a shared counter each function instance counts on its own, so add a free Upstash Redis store from Vercel's Storage tab to make the limit exact. Private on-device AI (Ollama) is off in the cloud.
