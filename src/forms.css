@@ -1,0 +1,212 @@
+/* Shared controls: warm surfaces, clear focus and a consistent option menu. */
+.select-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  min-height: 45px;
+  padding: 12px 14px;
+  background: #fffcf8;
+  border: 1px solid #eadfd3;
+  border-radius: 12px;
+  text-align: left;
+  font-size: 13px;
+  box-shadow: 0 2px 3px #49311903;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s,
+    background 0.2s;
+}
+.select-trigger:hover {
+  background: #fff6ed;
+  border-color: #ddbea4;
+}
+.select-trigger[data-state='open'] {
+  border-color: #e99d70;
+  box-shadow: 0 0 0 3px #ff8a3912;
+}
+.select-trigger[data-placeholder] {
+  color: #9e9285;
+}
+.select-trigger > span:first-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.select-chevron {
+  color: #b28c70;
+  margin-left: auto;
+  font-size: 18px;
+  line-height: 1;
+}
+.select-menu {
+  z-index: 100;
+  width: var(--radix-select-trigger-width);
+  min-width: 190px;
+  max-height: min(320px, var(--radix-select-content-available-height));
+  overflow: hidden;
+  background: #fffdfa;
+  border: 1px solid #eadbcb;
+  border-radius: 16px;
+  padding: 5px;
+  box-shadow:
+    0 16px 45px #4a301f20,
+    0 2px 6px #4a301f0a;
+  animation: menu-appear 0.15s ease-out;
+}
+.select-viewport {
+  padding: 2px;
+}
+.select-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  position: relative;
+  min-height: 39px;
+  padding: 10px 32px 10px 11px;
+  border-radius: 10px;
+  font-size: 12px;
+  line-height: 1.4;
+  cursor: pointer;
+  outline: none;
+  user-select: none;
+}
+.select-option[data-highlighted] {
+  background: #fff0e2;
+  color: #a65336;
+}
+.select-option[data-state='checked'] {
+  background: #fff5eb;
+  color: #b0643e;
+  font-weight: 600;
+}
+.select-check {
+  position: absolute;
+  right: 12px;
+  color: #d0784d;
+}
+.option-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex: none;
+}
+.select-scroll {
+  text-align: center;
+  color: #b18c6e;
+  padding: 4px;
+}
+@keyframes menu-appear {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.entry-form {
+  padding-top: 4px;
+}
+.entry-intro {
+  color: #9b8a7a;
+  font-size: 12px;
+  margin: 5px 0 20px;
+}
+.entry-amount {
+  padding: 20px 22px;
+  background: linear-gradient(120deg, #fff3e8, #fff9f1);
+  border: 1px solid #f0dfce;
+  border-radius: 18px;
+}
+.entry-amount label {
+  margin: 0 0 8px;
+  color: #a47b5f;
+  font-size: 11px;
+  font-weight: 500;
+}
+.amount-input {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+.amount-input > span {
+  font-size: 22px;
+  color: #d2855f;
+}
+.amount-input input {
+  width: 100%;
+  min-width: 0;
+  background: none;
+  border: 0;
+  font:
+    46px/1.2 'Libre Caslon Display',
+    Georgia,
+    serif;
+  letter-spacing: -1px;
+  color: #584432;
+  outline-offset: 3px;
+}
+.amount-input input::placeholder {
+  color: #d6b99f;
+}
+.entry-currency {
+  display: block;
+  margin-top: 8px;
+  font-size: 10px;
+  color: #b79b82;
+}
+.entry-form > label,
+.entry-form .form-grid label {
+  font-size: 11px;
+  font-weight: 500;
+  color: #8c7966;
+  margin-top: 18px;
+}
+.entry-form .field {
+  background: #fffcf8;
+  border-color: #eadfd3;
+  font-size: 13px;
+}
+.entry-form input.field,
+.entry-form textarea.field {
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
+}
+.entry-form .full {
+  min-height: 44px;
+}
+.entry-form .error:empty {
+  display: none;
+}
+.entry-form textarea {
+  min-height: 66px;
+}
+
+dialog:has(.entry-form) {
+  width: min(480px, calc(100% - 28px));
+  background: #fffefa;
+}
+dialog:has(.entry-form) .modal-head h2 {
+  font:
+    28px 'Libre Caslon Display',
+    Georgia,
+    serif;
+  letter-spacing: -0.5px;
+}
+@media (max-width: 420px) {
+  dialog:has(.entry-form) {
+    padding: 22px;
+  }
+  .entry-form .form-grid {
+    gap: 10px;
+  }
+  .entry-form input[type='date'],
+  .entry-form input[type='time'] {
+    min-width: 0;
+    padding-inline: 9px;
+  }
+}

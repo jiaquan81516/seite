@@ -1,0 +1,17 @@
+.time-field {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 10px;
+}
+.time-field .field {
+  flex: 1 1 130px;
+  min-width: 0;
+}
+.time-field-actions {
+  display: flex;
+  gap: 10px;
+}
+.time-field-actions .text-btn {
+  font-size: 12px;
+}

@@ -1,0 +1,46 @@
+{
+  "name": "seite",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "node scripts/dev.mjs",
+    "build": "vite build",
+    "preview": "vite preview --host 127.0.0.1",
+    "test": "vitest run",
+    "format": "prettier --write src server shared scripts tests index.html vite.config.js package.json README.md",
+    "format:check": "prettier --check src server shared scripts tests index.html vite.config.js package.json README.md",
+    "dev:ui": "vite --host 127.0.0.1",
+    "dev:api": "node --watch server/index.js",
+    "start": "node server/index.js"
+  },
+  "dependencies": {
+    "@ai-sdk/google": "^4.0.121",
+    "@ai-sdk/openai-compatible": "^3.0.92",
+    "@radix-ui/react-select": "^2.4.1",
+    "ai": "^7.0.173",
+    "heic-to": "^1.6.7",
+    "pdfjs-dist": "^6.5.438",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@testing-library/jest-dom": "^7.0.1",
+    "@testing-library/react": "^16.3.3",
+    "@testing-library/user-event": "^14.6.12",
+    "@vitejs/plugin-react": "^6.3.0",
+    "fake-indexeddb": "^6.2.8",
+    "jsdom": "^29.1.1",
+    "prettier": "^3.10.1",
+    "vite": "^8.3.8",
+    "vite-plugin-pwa": "^2.0.0",
+    "vitest": "^5.1.0"
+  },
+  "overrides": {
+    "glob": "^14.0.2"
+  },
+  "engines": {
+    "node": ">=22.12.0"
+  }
+}

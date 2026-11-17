@@ -1,0 +1,14 @@
+.gmail-steps {
+  margin: 14px 0 18px;
+  padding-left: 20px;
+  font-size: 13px;
+  color: #7c6a58;
+  line-height: 1.6;
+}
+.gmail-status {
+  margin: 0 0 10px;
+  text-align: center;
+}
+.gmail-status button {
+  margin-left: 6px;
+}

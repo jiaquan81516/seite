@@ -1,0 +1,23 @@
+.restore-list {
+  margin: 14px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.restore-list li {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 0;
+  border-top: 1px solid #eee2d5;
+  font-size: 12px;
+}
+.restore-list li strong {
+  display: block;
+  overflow-wrap: anywhere;
+}
+.restore-list li small {
+  display: block;
+  margin-top: 3px;
+  font-size: 10px;
+  color: #b09b86;
+}
